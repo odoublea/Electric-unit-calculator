@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Meter Report Form</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <div class="form-container">
+            <form id="meterForm">
+                <h2>Enter Meter Details</h2>
+                <label for="meterNo">Meter No:</label>
+                <input type="text" id="meterNo" name="meterNo" placeholder="123456" required>
+
+                <label for="user">User:</label>
+                <input type="text" id="user" name="user" required>
+
+                <label for="auditOpened">Audit Opened (kwh):</label>
+                <input type="number" id="auditOpened" name="auditOpened" step="0.01" required>
+
+                <label for="auditClosed">Audit Closed (kwh):</label>
+                <input type="number" id="auditClosed" name="auditClosed" step="0.01" required>
+
+                <label for="energyRecharged">Energy Recharged (kwh):</label>
+                <input type="number" id="energyRecharged" name="energyRecharged" step="0.01" required>
+
+                <label for="previousEnergyBalance">Previous Energy Balance (kwh):</label>
+                <input type="number" id="previousEnergyBalance" name="previousEnergyBalance" step="0.01" required>
+
+                <button type="button" onclick="updateReport()">Generate Report</button>
+                <button type="button" onclick="printReport()">Print Report</button>
+            </form>
+        </div>
+
+        <div class="report-container">
+            <div id="meterReport">
+                <!-- The report content will be injected here by JavaScript -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function updateReport() {
+            const meterNo = document.getElementById('meterNo').value;
+            const user = document.getElementById('user').value;
+            const auditOpened = parseFloat(document.getElementById('auditOpened').value);
+            const auditClosed = parseFloat(document.getElementById('auditClosed').value);
+            const energyRecharged = parseFloat(document.getElementById('energyRecharged').value);
+            const previousEnergyBalance = parseFloat(document.getElementById('previousEnergyBalance').value);
+
+            const energyConsumed = auditClosed - auditOpened;
+            const energyBalance = previousEnergyBalance + energyRecharged - energyConsumed;
+
+            const reportHtml = `
+                <h2>Meter Report</h2>
+                <p><strong>Meter No:</strong> ${meterNo}</p>
+                <p><strong>User:</strong> ${user}</p>
+                <p><strong>Audit Opened:</strong> ${auditOpened.toFixed(2)} kwh</p>
+                <p><strong>Audit Closed:</strong> ${auditClosed.toFixed(2)} kwh</p>
+                <p><strong>Energy Recharged:</strong> ${energyRecharged.toFixed(2)} kwh</p>
+                <p><strong>Previous Energy Balance:</strong> ${previousEnergyBalance.toFixed(2)} kwh</p>
+                <p><strong>Energy Consumed (Audit Closed - Audit Opened):</strong> ${auditClosed.toFixed(2)} - ${auditOpened.toFixed(2)} = <strong>${energyConsumed.toFixed(2)}</strong> kwh</p>
+                <p><strong>Energy balance (Previous Energy Balance + Energy Recharged - (Energy Consumed)):</strong> ${previousEnergyBalance.toFixed(2)} + ${energyRecharged.toFixed(2)} + (${energyConsumed.toFixed(2)}) = <strong>${energyBalance.toFixed(2)}</strong> kwh</p>
+                <p><strong>Current Standing:</strong> <strong>${energyBalance.toFixed(2)} kwh</strong></p>
+            `;
+
+            document.getElementById('meterReport').innerHTML = reportHtml;
+        }
+
+        function printReport() {
+            const reportContent = document.getElementById('meterReport').innerHTML;
+            const originalContent = document.body.innerHTML;
+
+            document.body.innerHTML = `<div class="printable-report">${reportContent}</div>`;
+            window.print();
+            document.body.innerHTML = originalContent;
+        }
+
+        document.querySelectorAll('#meterForm input').forEach(input => {
+            input.addEventListener('onClick', updateReport);
+        });
+    </script>
+</body>
+</html>
